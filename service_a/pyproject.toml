@@ -1,0 +1,21 @@
+[project]
+name = "flask-micro"
+version = "0.1.0"
+description = ""
+authors = [
+    {name = "dilozy",email = "denfil228@yandex.ru"}
+]
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "flask (>=3.1.1,<4.0.0)",
+    "pydantic (>=2.11.7,<3.0.0)",
+    "flask-migrate (>=4.1.0,<5.0.0)",
+    "sqlalchemy (>=2.0.43,<3.0.0)",
+    "python-dotenv (>=1.1.1,<2.0.0)"
+]
+
+
+[build-system]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
+build-backend = "poetry.core.masonry.api"
