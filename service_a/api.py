@@ -1,8 +1,8 @@
 from flask import Blueprint, request, jsonify
 from pydantic import ValidationError
 
-from repositories import ItemsRepo, OutboxEventsRepo
-from schemas import ItemCreate, ItemRead, OutboxEventRead
+from .repositories import ItemsRepo, OutboxEventsRepo
+from .schemas import ItemCreate, ItemRead, OutboxEventRead
 
 
 items_bp = Blueprint("items", __name__)
@@ -19,9 +19,9 @@ def create_item():
         OutboxEventsRepo.create(new_item_serialized)
         
         return jsonify({"detail": "Item was created successfully"}), 201
-    except ValidationError as e:
+    except ValidationError:
         return jsonify({
-            "error": e.errors()
+            "error": "Incorrect request"
         }), 400
 
 
