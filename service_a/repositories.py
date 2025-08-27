@@ -1,5 +1,5 @@
-from extensions import db
-from models import Item, OutboxEvent
+from .extensions import db
+from .models import Item, OutboxEvent
 
 
 class ItemsRepo:
