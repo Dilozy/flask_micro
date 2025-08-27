@@ -2,7 +2,7 @@ import factory
 from factory.alchemy import SQLAlchemyModelFactory
 
 from ..extensions import db
-from ..models import Item
+from ..models import ReceivedItem
 
 
 class BaseFactory(SQLAlchemyModelFactory):
@@ -11,8 +11,8 @@ class BaseFactory(SQLAlchemyModelFactory):
         sqlalchemy_session_persistence = "commit"
 
 
-class ItemFactory(BaseFactory):
+class RecievedItemFactory(BaseFactory):
     class Meta:
-        model = Item
+        model = ReceivedItem
 
     name = factory.Faker("word")
