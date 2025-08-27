@@ -19,7 +19,7 @@ def create_item():
         OutboxEventsRepo.create(new_item_serialized)
         
         return jsonify({"detail": "Item was created successfully"}), 201
-    except ValidationError:
+    except (ValidationError, TypeError):
         return jsonify({
             "error": "Incorrect request"
         }), 400

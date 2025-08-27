@@ -8,8 +8,7 @@ from ..models import Item, OutboxEvent
 
 
 class TestCreatItemAPI:
-    def test_create_with_correct_request(self, items, session, client):
-        initial_items_count = len(items)
+    def test_create_with_correct_request(self, session, client, initial_items_count):
         initial_outbox_events_count = 0
         
         request_data = {"name": "vacuum cleaner"}
@@ -41,34 +40,35 @@ class TestCreatItemAPI:
     @pytest.mark.parametrize("request_data", [
         {"nanameme": "vacuum cleaner"},
         {},
-        {"name": "smartphone", "aa": "aabb"}
+        {"name": "smartphone", "aa": "aabb"},
+        "jhjkljklj"
     ])
-    def test_create_with_incorrect_request(self, items, session, client,
-                                           request_data):
+    def test_create_with_incorrect_request(self, session, client,
+                                           request_data, initial_items_count):
         response = client.post("api/v1/items", json=request_data)
 
         assert response.status_code == 400
         assert response.json["error"] == "Incorrect request"
         
         stmt = select(func.count(Item.id))
-        assert session.execute(stmt).scalar() == len(items)
+        assert session.execute(stmt).scalar() == initial_items_count
 
         stmt = select(func.count(OutboxEvent.id))
         assert session.execute(stmt).scalar() == 0
 
 
-class TestListItemsAPI:
-    def test_endpoint_response(self, client, items):
+class TestListinitial_items_countAPI:
+    def test_endpoint_response(self, client, initial_items_count):
         response = client.get("api/v1/items")
         assert response.status_code == 200
-        assert len(response.json) == len(items)
+        assert len(response.json) == initial_items_count
 
     @pytest.mark.parametrize("request_data", [
         {"name": "abracadavra"},
     ])
-    def test_endpoint_after_adding_new_item(self, client, items, request_data):
+    def test_endpoint_after_adding_new_item(self, client, initial_items_count, request_data):
         client.post("api/v1/items", json=request_data)
 
         response = client.get("api/v1/items")
-        assert len(response.json) == len(items) + 1
+        assert len(response.json) == initial_items_count + 1
         assert response.json[-1]["name"] == request_data["name"]

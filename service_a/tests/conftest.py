@@ -3,10 +3,9 @@ import pytest
 from ..app import create_app
 from ..extensions import db
 from ..config import TestingConfig
-from .factories import ItemFactory
 
 
-@pytest.fixture(scope="function")
+@pytest.fixture(scope="session")
 def app():
     app = create_app(config_class=TestingConfig)
     
@@ -17,7 +16,7 @@ def app():
         db.drop_all()
 
 
-@pytest.fixture
+@pytest.fixture(scope="session")
 def client(app):
     return app.test_client()
 
@@ -26,10 +25,20 @@ def client(app):
 def session(app):
     with app.app_context():
         yield db.session
+        db.session.rollback()
+        db.session.remove()
 
 
-@pytest.fixture()
-def items(session):
-    items = ItemFactory.create_batch(10)
-    session.commit()
-    return items
+@pytest.fixture
+def initial_items_count():
+    return 0
+
+
+@pytest.fixture(autouse=True)
+def clean_db(app):
+    with app.app_context():
+        meta = db.metadata
+        for table in reversed(meta.sorted_tables):
+            db.session.execute(table.delete())
+        db.session.commit()
+    yield
