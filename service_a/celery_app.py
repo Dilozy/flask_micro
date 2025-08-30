@@ -1,10 +1,11 @@
 from celery import Celery
 
-from config import CeleryConfig
+from config import CeleryConfig, CeleryBeatConfig
 
 
 celery_app = Celery("service_a")
 celery_app.config_from_object(CeleryConfig)
+celery_app.conf.beat_schedule = CeleryBeatConfig.BEAT_SCHEDULE
 celery_app.autodiscover_tasks(["tasks"])
 
 
