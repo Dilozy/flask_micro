@@ -1,11 +1,6 @@
 import os
 from dataclasses import dataclass
 
-from dotenv import load_dotenv
-
-
-load_dotenv()
-
 
 @dataclass
 class DatabaseURI:
@@ -15,7 +10,7 @@ class DatabaseURI:
     DB_NAME: str = os.getenv("DB_NAME")
     
     def get_uri(self):
-        return f"postgresql://{self.DB_USER}:{self.DB_PASSWORD}@{self.DB_HOST}/{self.DB_NAME}"
+        return f"postgresql+psycopg://{self.DB_USER}:{self.DB_PASSWORD}@{self.DB_HOST}/{self.DB_NAME}"
 
 
 class DevelopmentConfig:
@@ -25,3 +20,8 @@ class DevelopmentConfig:
 class TestingConfig:
     SQLALCHEMY_DATABASE_URI = DatabaseURI(DB_NAME="flask_micro_test_db").get_uri()
     TESTING = True
+
+
+class CeleryConfig:
+    broker_url = f'amqp://{os.getenv("RABBIT_USER")}:{os.getenv("RABBIT_PASS")}@rabbitmq:5672//'
+    result_backend = f'redis://redis:6379/{os.getenv("SERVICE_A_REDIS_DB")}'

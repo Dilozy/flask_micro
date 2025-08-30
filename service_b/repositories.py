@@ -1,4 +1,4 @@
-from .models import ReceivedItem
+from models import ReceivedItem
 
 
 class RecievedItemsRepo:
