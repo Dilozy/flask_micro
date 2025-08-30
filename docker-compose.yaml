@@ -1,0 +1,160 @@
+services:
+  service_a:
+    build:
+      context: .
+      dockerfile: service_a/Dockerfile
+    command: ["python", "main.py"]
+    environment:
+      DB_NAME: $SERVICE_A_DB_NAME
+      DB_USER: $SERVICE_A_DB_USER
+      DB_PASSWORD: $SERVICE_A_DB_PASSWORD
+      DB_HOST: $SERVICE_A_DB_HOST
+      DB_PORT: $SERVICE_A_DB_PORT
+      SERVICE_A_REDIS_DB: $SERVICE_A_REDIS_DB
+      RABBIT_USER: $RABBIT_USER
+      RABBIT_PASS: $RABBIT_PASS
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./service_a:/service_a/app
+    depends_on:
+      - service_a_postgres
+      - service_a_worker
+      - rabbitmq
+    networks:
+      - service_a
+    
+  service_a_postgres:
+    image: postgres
+    hostname: database_a
+    environment:
+      POSTGRES_USER: $SERVICE_A_DB_USER
+      POSTGRES_PASSWORD: $SERVICE_A_DB_PASSWORD
+      POSTGRES_DB: $SERVICE_A_DB_NAME
+    volumes:
+      - postgres_data_a:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    networks:
+      - service_a
+
+  service_a_worker:
+    build:
+      context: .
+      dockerfile: service_a/Dockerfile
+    command: ["celery", "-A", "celery_app:celery_app", "worker", "--loglevel=info"]
+    environment:
+      DB_NAME: $SERVICE_A_DB_NAME
+      DB_USER: $SERVICE_A_DB_USER
+      DB_PASSWORD: $SERVICE_A_DB_PASSWORD
+      DB_HOST: $SERVICE_A_DB_HOST
+      DB_PORT: $SERVICE_A_DB_PORT
+      SERVICE_A_REDIS_DB: $SERVICE_A_REDIS_DB
+      RABBIT_USER: $RABBIT_USER
+      RABBIT_PASS: $RABBIT_PASS
+    volumes:
+      - ./service_a:/service_a/app
+    depends_on:
+      - service_a_postgres
+      - rabbitmq
+    networks:
+      - service_a
+
+  service_b:
+    build:
+      context: .
+      dockerfile: service_b/Dockerfile
+    command: ["python", "main.py"]
+    environment:
+      DB_NAME: $SERVICE_B_DB_NAME
+      DB_USER: $SERVICE_B_DB_USER
+      DB_PASSWORD: $SERVICE_B_DB_PASSWORD
+      DB_HOST: $SERVICE_B_DB_HOST
+      DB_PORT: $SERVICE_B_DB_PORT
+      SERVICE_B_REDIS_DB: $SERVICE_B_REDIS_DB
+      RABBIT_USER: $RABBIT_USER
+      RABBIT_PASS: $RABBIT_PASS
+    ports:
+      - "8081:8081"
+    volumes:
+      - ./service_b:/service_b/app
+    depends_on:
+      - service_b_postgres
+      - service_b_worker
+      - rabbitmq
+    networks:
+      - service_b
+
+  service_b_postgres:
+    image: postgres
+    hostname: database_b
+    environment:
+      POSTGRES_USER: $SERVICE_B_DB_USER
+      POSTGRES_PASSWORD: $SERVICE_B_DB_PASSWORD
+      POSTGRES_DB: $SERVICE_B_DB_NAME
+    volumes:
+      - postgres_data_b:/var/lib/postgresql/data
+    ports:
+      - "5433:5432"
+    networks:
+      - service_b
+
+  service_b_worker:
+    build:
+      context: .
+      dockerfile: service_b/Dockerfile
+    command: ["celery", "-A", "celery_app:celery_app", "worker", "--loglevel=info"]
+    environment:
+      DB_NAME: $SERVICE_B_DB_NAME
+      DB_USER: $SERVICE_B_DB_USER
+      DB_PASSWORD: $SERVICE_B_DB_PASSWORD
+      DB_HOST: $SERVICE_B_DB_HOST
+      DB_PORT: $SERVICE_B_DB_PORT
+      SERVICE_B_REDIS_DB: $SERVICE_B_REDIS_DB
+      RABBIT_USER: $RABBIT_USER
+      RABBIT_PASS: $RABBIT_PASS
+    volumes:
+      - ./service_b:/service_b/app
+    depends_on:
+      - service_b_postgres
+      - rabbitmq
+    networks:
+      - service_b
+
+  rabbitmq:
+    image: rabbitmq:3-management
+    ports:
+     - "5672:5672"
+     - "15672:15672"
+    environment:
+      RABBITMQ_DEFAULT_USER: $RABBIT_USER
+      RABBITMQ_DEFAULT_PASS: $RABBIT_PASS
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+    networks:
+      - service_a
+      - service_b
+
+  redis:
+    image: redis:8.0.2-alpine
+    restart: always
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    command: redis-server
+    networks:
+      - service_a
+      - service_b
+
+volumes:
+  postgres_data_a:
+  postgres_data_b:
+  rabbitmq_data:
+  redis_data:
+
+networks:
+  service_a:
+    driver: bridge
+  service_b:
+    driver: bridge

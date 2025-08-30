@@ -3,7 +3,7 @@ from datetime import datetime
 from sqlalchemy.orm import Mapped, mapped_column
 from sqlalchemy import func
 
-from .extensions import db
+from extensions import db
 
 
 class ReceivedItem(db.Model):
