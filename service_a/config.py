@@ -25,3 +25,13 @@ class TestingConfig:
 class CeleryConfig:
     broker_url = f'amqp://{os.getenv("RABBIT_USER")}:{os.getenv("RABBIT_PASS")}@rabbitmq:5672//'
     result_backend = f'redis://redis:6379/{os.getenv("SERVICE_A_REDIS_DB")}'
+
+
+class CeleryBeatConfig:
+    BEAT_SCHEDULE = {
+        "check-unprocessed-outbox-events-every-10-seconds": {
+        "task": "tasks.check_unprocessed_outbox_events",
+        "schedule": int(os.getenv("CHECK_OUTBOX_EVENTS_EVERY", 10)),
+        "options": {"queue": "service_a_tasks"}
+        },
+    }

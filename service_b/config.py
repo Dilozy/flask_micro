@@ -20,8 +20,3 @@ class DevelopmentConfig:
 class TestingConfig:
     SQLALCHEMY_DATABASE_URI = DatabaseURI(DB_NAME="flask_micro_test_db").get_uri()
     TESTING = True
-
-
-class CeleryConfig:
-    broker_url = f'amqp://{os.getenv("RABBIT_USER")}:{os.getenv("RABBIT_PASS")}@rabbitmq:5672//'
-    result_backend = f'redis://redis:6379/{os.getenv("SERVICE_B_REDIS_DB")}'

@@ -1,3 +1,5 @@
+from sqlalchemy import select
+
 from extensions import db
 from models import Item, OutboxEvent
 
@@ -25,3 +27,13 @@ class OutboxEventsRepo:
     @staticmethod
     def list():
         return OutboxEvent.query.all()
+    
+    @staticmethod
+    def list_unprocessed():
+        stmt = select(OutboxEvent).where(OutboxEvent.processed == False)
+        return db.session.execute(stmt).scalars().all()
+    
+    @staticmethod
+    def confirm_processed_for(event):
+        event.processed = True
+        db.session.commit()

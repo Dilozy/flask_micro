@@ -13,6 +13,7 @@ services:
       SERVICE_A_REDIS_DB: $SERVICE_A_REDIS_DB
       RABBIT_USER: $RABBIT_USER
       RABBIT_PASS: $RABBIT_PASS
+      CHECK_OUTBOX_EVENTS_EVERY: $CHECK_OUTBOX_EVENTS_EVERY
     ports:
       - "8080:8080"
     volumes:
@@ -42,7 +43,7 @@ services:
     build:
       context: .
       dockerfile: service_a/Dockerfile
-    command: ["celery", "-A", "celery_app:celery_app", "worker", "--loglevel=info"]
+    command: ["celery", "-A", "main:celery_app", "worker", "-Q", "service_a_tasks", "--loglevel=info"]
     environment:
       DB_NAME: $SERVICE_A_DB_NAME
       DB_USER: $SERVICE_A_DB_USER
@@ -52,11 +53,37 @@ services:
       SERVICE_A_REDIS_DB: $SERVICE_A_REDIS_DB
       RABBIT_USER: $RABBIT_USER
       RABBIT_PASS: $RABBIT_PASS
+      CHECK_OUTBOX_EVENTS_EVERY: $CHECK_OUTBOX_EVENTS_EVERY
     volumes:
       - ./service_a:/service_a/app
     depends_on:
       - service_a_postgres
       - rabbitmq
+      - service_b
+    networks:
+      - service_a
+
+  service_a_celery_beat:
+    build:
+      context: .
+      dockerfile: service_a/Dockerfile
+    command: ["celery", "-A", "main:celery_app", "beat", "--loglevel=info"]
+    environment:
+      DB_NAME: $SERVICE_A_DB_NAME
+      DB_USER: $SERVICE_A_DB_USER
+      DB_PASSWORD: $SERVICE_A_DB_PASSWORD
+      DB_HOST: $SERVICE_A_DB_HOST
+      DB_PORT: $SERVICE_A_DB_PORT
+      SERVICE_A_REDIS_DB: $SERVICE_A_REDIS_DB
+      RABBIT_USER: $RABBIT_USER
+      RABBIT_PASS: $RABBIT_PASS
+      CHECK_OUTBOX_EVENTS_EVERY: $CHECK_OUTBOX_EVENTS_EVERY
+    volumes:
+      - ./service_a:/service_a/app
+    depends_on:
+      - service_a_postgres
+      - rabbitmq
+      - service_b
     networks:
       - service_a
 
@@ -80,7 +107,6 @@ services:
       - ./service_b:/service_b/app
     depends_on:
       - service_b_postgres
-      - service_b_worker
       - rabbitmq
     networks:
       - service_b
@@ -96,28 +122,6 @@ services:
       - postgres_data_b:/var/lib/postgresql/data
     ports:
       - "5433:5432"
-    networks:
-      - service_b
-
-  service_b_worker:
-    build:
-      context: .
-      dockerfile: service_b/Dockerfile
-    command: ["celery", "-A", "celery_app:celery_app", "worker", "--loglevel=info"]
-    environment:
-      DB_NAME: $SERVICE_B_DB_NAME
-      DB_USER: $SERVICE_B_DB_USER
-      DB_PASSWORD: $SERVICE_B_DB_PASSWORD
-      DB_HOST: $SERVICE_B_DB_HOST
-      DB_PORT: $SERVICE_B_DB_PORT
-      SERVICE_B_REDIS_DB: $SERVICE_B_REDIS_DB
-      RABBIT_USER: $RABBIT_USER
-      RABBIT_PASS: $RABBIT_PASS
-    volumes:
-      - ./service_b:/service_b/app
-    depends_on:
-      - service_b_postgres
-      - rabbitmq
     networks:
       - service_b
 

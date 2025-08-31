@@ -16,6 +16,8 @@ class ItemRead(BaseModel):
 
 
 class OutboxEventRead(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+    
     id: int
     payload: Json
     created_at: datetime
