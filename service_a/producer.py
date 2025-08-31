@@ -1,24 +1,47 @@
-from kombu import Queue, Exchange, Connection, Producer
+import os
+import logging
+from contextlib import contextmanager
 
-from config import CeleryConfig
+import pika
 
 
-RabbitMQ_url = CeleryConfig.broker_url
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 
-def publish_service_a_event_with(event_payload):
-    with Connection(RabbitMQ_url) as conn:
-        exchange = Exchange("service_a_create_items_events", type="direct")
-        queue = Queue("service_a_create_items_events",
-                      exchange=exchange,
-                      routing_key="service_a_create_items_events")
-        
-        with conn.channel() as channel:
-            exchange.declare(channel=channel)
-            queue.declare(channel=channel)
-            
-            producer = Producer(channel, exchange=exchange, serializer="json")
-            producer.publish(
-                event_payload,
-                routing_key="service_a_create_items_events"
+class MessageProducer:
+    def __init__(self):
+        self.params = pika.ConnectionParameters(
+            host="rabbitmq",
+            credentials=pika.PlainCredentials(
+                username=os.getenv("RABBIT_USER"),
+                password=os.getenv("RABBIT_PASS")
             )
+        )
+
+    @contextmanager
+    def channel(self):
+        connection = pika.BlockingConnection(self.params)
+        try:
+            channel = connection.channel()
+            channel.exchange_declare(
+                exchange="create_item_events_exchange",
+                exchange_type="direct",
+                durable=True,
+                auto_delete=False
+            )
+            yield channel
+        finally:
+            connection.close()
+
+    def produce_event_message(self, event_payload):
+        with self.channel() as ch:
+            logger.info("Creating connection with RabbitMQ")
+
+            ch.basic_publish(
+                exchange="create_item_events_exchange",
+                routing_key="create_item_event",
+                body=event_payload
+            )
+
+            logger.info("New event message has been published")

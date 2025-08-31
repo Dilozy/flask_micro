@@ -1,9 +1,7 @@
-import os
-
 from flask import Flask
 
 from extensions import db, migrate
-from celery_app import celery_app, init_app_for_celery
+from celery_app import init_app_for_celery
 from api import items_bp
 from config import DevelopmentConfig
 
@@ -15,6 +13,6 @@ def create_app(config_class=DevelopmentConfig):
     
     db.init_app(app)
     migrate.init_app(app, db)
-    init_app_for_celery(app, celery_app)
+    init_app_for_celery(app)
 
     return app

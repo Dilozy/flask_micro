@@ -1,17 +1,17 @@
-from celery import Celery
+from celery import Celery, Task
 
-from config import CeleryConfig, CeleryBeatConfig
-
-
-celery_app = Celery("service_a")
-celery_app.config_from_object(CeleryConfig)
-celery_app.conf.beat_schedule = CeleryBeatConfig.BEAT_SCHEDULE
-celery_app.autodiscover_tasks(["tasks"])
+from config import CeleryConfig
 
 
-def init_app_for_celery(flask_app, celery_app):
-    class ContextTask(celery_app.Task):
-        def __call__(self, *args, **kwargs):
+def init_app_for_celery(flask_app):
+    class FlaskTask(Task):
+        def __call__(self, *args: object, **kwargs: object) -> object:
             with flask_app.app_context():
                 return self.run(*args, **kwargs)
-    celery_app.Task = ContextTask
+
+    celery_app = Celery(flask_app.name, task_cls=FlaskTask)
+    celery_app.config_from_object(CeleryConfig)
+    celery_app.set_default()
+    celery_app.autodiscover_tasks(["tasks"])
+    flask_app.extensions["celery"] = celery_app
+    return celery_app
