@@ -3,7 +3,7 @@ from celery import Celery, Task
 from config import CeleryConfig
 
 
-def init_app_for_celery(flask_app):
+def celery_init_app(flask_app):
     class FlaskTask(Task):
         def __call__(self, *args: object, **kwargs: object) -> object:
             with flask_app.app_context():

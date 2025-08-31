@@ -24,7 +24,6 @@ class TestingConfig:
 
 class CeleryConfig:
     broker_url = f'amqp://{os.getenv("RABBIT_USER")}:{os.getenv("RABBIT_PASS")}@rabbitmq:5672//'
-    result_backend = f'redis://redis:6379/{os.getenv("SERVICE_A_REDIS_DB")}'
 
 
 class CeleryBeatConfig:
