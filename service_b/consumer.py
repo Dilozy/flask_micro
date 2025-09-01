@@ -7,6 +7,7 @@ from contextlib import contextmanager
 import pika
 
 from repositories import RecievedItemsRepo
+from config import DevelopmentConfig
 
 
 logging.basicConfig(level=logging.INFO)
@@ -16,7 +17,7 @@ logger = logging.getLogger(__name__)
 class MessageConsumer:
     def __init__(self):
         self.params = pika.ConnectionParameters(
-            host="rabbitmq",
+            host=DevelopmentConfig.RABBIT_HOST,
             credentials=pika.PlainCredentials(
                 username=os.getenv("RABBIT_USER"),
                 password=os.getenv("RABBIT_PASS")
@@ -29,7 +30,7 @@ class MessageConsumer:
         try:
             channel = connection.channel()
             channel.exchange_declare(
-                exchange="create_item_events_exchange",
+                exchange=DevelopmentConfig.CREATE_ITEM_EVENTS_EXCHANGE,
                 exchange_type="direct",
                 durable=True,
                 auto_delete=False
@@ -40,16 +41,16 @@ class MessageConsumer:
 
     def consume_create_item_event_messages(self):
         with self.channel() as ch:
-            ch.queue_declare("create_item_events_queue",
+            ch.queue_declare(DevelopmentConfig.CREATE_ITEM_EVENTS_QUEUE,
                              auto_delete=False,
                              durable=True)
             ch.queue_bind(
                 queue="create_item_events_queue",
-                exchange="create_item_events_exchange",
-                routing_key="create_item_event"
+                exchange=DevelopmentConfig.CREATE_ITEM_EVENTS_EXCHANGE,
+                routing_key=DevelopmentConfig.CREATE_ITEM_EVENTS_ROUTING_KEY
             )
 
-            ch.basic_consume(queue="create_item_events_queue",
+            ch.basic_consume(queue=DevelopmentConfig.CREATE_ITEM_EVENTS_QUEUE,
                              on_message_callback=self.add_recieved_item,
                              auto_ack=False)
             

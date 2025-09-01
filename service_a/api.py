@@ -29,11 +29,18 @@ def create_item():
 
 @items_bp.route("/items", methods=["GET"])
 def list_items():
-    items = [model_to_dict(item) for item in ItemsRepo.list()]
-    return jsonify(items)
+    page = request.args.get("page", default=1, type=int)
+    page_size = request.args.get("page_size", default=10, type=int)
+    
+    items = [model_to_dict(item) for item in ItemsRepo.list_paginated(page, page_size)]
+
+    response = {"items": items,
+                "page": page,
+                "page_size": page_size}
+    return jsonify(response)
 
 
 @items_bp.route("/events", methods=["GET"])
 def list_events():
-    events = [model_to_dict(event) for event in OutboxEventsRepo.list()]
+    events = [model_to_dict(event) for event in OutboxEventsRepo.list_()]
     return jsonify(events)
