@@ -2,6 +2,7 @@ FROM python:3.12.11-alpine3.22
 
 RUN apk add --no-cache \
     postgresql-dev \
+    postgresql-client \
     gcc \
     musl-dev \
     libffi-dev \

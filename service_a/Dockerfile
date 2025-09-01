@@ -2,10 +2,12 @@ FROM python:3.12.11-alpine3.22
 
 RUN apk add --no-cache \
     postgresql-dev \
+    postgresql-client \
     gcc \
     musl-dev \
     libffi-dev \
     python3-dev \
+    netcat-openbsd \
     && rm -rf /var/cache/apk/*
 
 ENV POETRY_HOME=/opt/poetry
@@ -24,11 +26,10 @@ COPY pyproject.toml poetry.lock ./
 RUN poetry install --no-root
 
 WORKDIR /service_a/app
-
 COPY service_a/ .
 
 EXPOSE 8080
 
 ENV PYTHONPATH=/service_a/app
 
-ENTRYPOINT ["poetry", "run"]
+ENTRYPOINT ["poetry",  "run"]
