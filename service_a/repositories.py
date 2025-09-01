@@ -13,8 +13,16 @@ class ItemsRepo:
         return new_item
     
     @staticmethod
-    def list():
-        return Item.query.all()
+    def list_paginated(page=1, page_size=10):
+        stmt = select(Item)
+        paginated_result = db.paginate(
+            stmt,
+            page=page,
+            per_page=page_size,
+            error_out=False
+        )
+
+        return paginated_result.items
 
 
 class OutboxEventsRepo:
@@ -25,7 +33,7 @@ class OutboxEventsRepo:
         db.session.commit()
 
     @staticmethod
-    def list():
+    def list_():
         return OutboxEvent.query.all()
     
     @staticmethod

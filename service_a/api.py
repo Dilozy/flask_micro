@@ -1,8 +1,11 @@
+import json
+
 from flask import Blueprint, request, jsonify
 from pydantic import ValidationError
 
 from repositories import ItemsRepo, OutboxEventsRepo
-from schemas import ItemCreate, ItemRead, OutboxEventRead
+from schemas import ItemCreate
+from misc import model_to_dict
 
 
 items_bp = Blueprint("items", __name__)
@@ -13,8 +16,7 @@ def create_item():
     try:
         item_data = ItemCreate(**request.get_json())
         new_item = ItemsRepo.create(item_data.model_dump())
-        new_item_serialized = ItemRead.model_validate(new_item,
-                                                      from_attributes=True).model_dump_json()
+        new_item_serialized = json.dumps(model_to_dict(new_item))
 
         OutboxEventsRepo.create(new_item_serialized)
         
@@ -27,13 +29,18 @@ def create_item():
 
 @items_bp.route("/items", methods=["GET"])
 def list_items():
-    items = [ItemRead.model_validate(item, from_attributes=True).model_dump()
-             for item in ItemsRepo.list()]
-    return jsonify(items)
+    page = request.args.get("page", default=1, type=int)
+    page_size = request.args.get("page_size", default=10, type=int)
+    
+    items = [model_to_dict(item) for item in ItemsRepo.list_paginated(page, page_size)]
+
+    response = {"items": items,
+                "page": page,
+                "page_size": page_size}
+    return jsonify(response)
 
 
 @items_bp.route("/events", methods=["GET"])
 def list_events():
-    events = [OutboxEventRead.model_validate(event, from_attributes=True).model_dump()
-             for event in OutboxEventsRepo.list()]
+    events = [model_to_dict(event) for event in OutboxEventsRepo.list_()]
     return jsonify(events)

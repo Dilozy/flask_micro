@@ -2,6 +2,8 @@ import os
 import logging
 from contextlib import contextmanager
 
+from config import DevelopmentConfig
+
 import pika
 
 
@@ -12,7 +14,7 @@ logger = logging.getLogger(__name__)
 class MessageProducer:
     def __init__(self):
         self.params = pika.ConnectionParameters(
-            host="rabbitmq",
+            host=DevelopmentConfig.RABBIT_HOST,
             credentials=pika.PlainCredentials(
                 username=os.getenv("RABBIT_USER"),
                 password=os.getenv("RABBIT_PASS")
@@ -25,7 +27,7 @@ class MessageProducer:
         try:
             channel = connection.channel()
             channel.exchange_declare(
-                exchange="create_item_events_exchange",
+                exchange=DevelopmentConfig.CREATE_ITEM_EVENTS_EXCHANGE,
                 exchange_type="direct",
                 durable=True,
                 auto_delete=False
@@ -39,8 +41,8 @@ class MessageProducer:
             logger.info("Creating connection with RabbitMQ")
 
             ch.basic_publish(
-                exchange="create_item_events_exchange",
-                routing_key="create_item_event",
+                exchange=DevelopmentConfig.CREATE_ITEM_EVENTS_EXCHANGE,
+                routing_key=DevelopmentConfig.CREATE_ITEM_EVENTS_ROUTING_KEY,
                 body=event_payload
             )
 

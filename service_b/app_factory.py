@@ -1,11 +1,9 @@
-import threading
-
 from flask import Flask
 
 from extensions import db, migrate
 from api import recieved_items_bp
 from config import DevelopmentConfig
-from consumer import MessageConsumer
+from consumer import start_message_consumer
 
 
 def create_app(config_class=DevelopmentConfig):
@@ -15,18 +13,5 @@ def create_app(config_class=DevelopmentConfig):
     
     db.init_app(app)
     migrate.init_app(app, db)
-
-    def consumer_with_context():
-        with app.app_context():
-            message_consumer = MessageConsumer()
-            message_consumer.consume_create_item_event_messages()
-    
-    thread = threading.Thread(
-        target=consumer_with_context,
-        daemon=True
-    )
-    thread.start()
-
-    app.logger.info("RabbitMQ consumer started in background thread")
-
+    start_message_consumer(app)
     return app

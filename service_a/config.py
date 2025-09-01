@@ -13,25 +13,28 @@ class DatabaseURI:
         return f"postgresql+psycopg://{self.DB_USER}:{self.DB_PASSWORD}@{self.DB_HOST}/{self.DB_NAME}"
 
 
-class DevelopmentConfig:
-    SQLALCHEMY_DATABASE_URI = DatabaseURI().get_uri()
-
-
-class TestingConfig:
-    SQLALCHEMY_DATABASE_URI = DatabaseURI(DB_NAME="flask_micro_test_db").get_uri()
-    TESTING = True
-
-
-class CeleryConfig:
-    broker_url = f'amqp://{os.getenv("RABBIT_USER")}:{os.getenv("RABBIT_PASS")}@rabbitmq:5672//'
-    result_backend = f'redis://redis:6379/{os.getenv("SERVICE_A_REDIS_DB")}'
-
-
-class CeleryBeatConfig:
+class BaseConfig:
+    RABBIT_HOST = "rabbitmq"
+    CELERY_CONF = dict(
+        broker_url=f'amqp://{os.getenv("RABBIT_USER")}:{os.getenv("RABBIT_PASS")}@{RABBIT_HOST}:5672//',
+        task_ignore_result=True
+        )
+    SERVICE_A_TASKS_QUEUE= "service_a_tasks"
     BEAT_SCHEDULE = {
         "check-unprocessed-outbox-events-every-10-seconds": {
         "task": "tasks.check_unprocessed_outbox_events",
         "schedule": int(os.getenv("CHECK_OUTBOX_EVENTS_EVERY", 10)),
-        "options": {"queue": "service_a_tasks"}
+        "options": {"queue": SERVICE_A_TASKS_QUEUE}
         },
     }
+    CREATE_ITEM_EVENTS_EXCHANGE = "create_item_events_exchange"
+    CREATE_ITEM_EVENTS_ROUTING_KEY = "create_item_event"
+
+
+class DevelopmentConfig(BaseConfig):
+    SQLALCHEMY_DATABASE_URI = DatabaseURI().get_uri()
+
+
+class TestingConfig(BaseConfig):
+    SQLALCHEMY_DATABASE_URI = DatabaseURI(DB_NAME="flask_micro_test_db").get_uri()
+    TESTING = True

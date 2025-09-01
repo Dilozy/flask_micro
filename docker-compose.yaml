@@ -91,7 +91,6 @@ services:
     build:
       context: .
       dockerfile: service_b/Dockerfile
-    command: ["python", "main.py"]
     environment:
       DB_NAME: $SERVICE_B_DB_NAME
       DB_USER: $SERVICE_B_DB_USER
@@ -135,18 +134,6 @@ services:
       RABBITMQ_DEFAULT_PASS: $RABBIT_PASS
     volumes:
       - rabbitmq_data:/var/lib/rabbitmq
-    networks:
-      - service_a
-      - service_b
-
-  redis:
-    image: redis:8.0.2-alpine
-    restart: always
-    ports:
-      - "6379:6379"
-    volumes:
-      - redis_data:/data
-    command: redis-server
     networks:
       - service_a
       - service_b

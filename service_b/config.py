@@ -13,10 +13,17 @@ class DatabaseURI:
         return f"postgresql+psycopg://{self.DB_USER}:{self.DB_PASSWORD}@{self.DB_HOST}/{self.DB_NAME}"
 
 
-class DevelopmentConfig:
+class BaseConfig:
+    RABBIT_HOST = "rabbitmq"
+    CREATE_ITEM_EVENTS_EXCHANGE = "create_item_events_exchange"
+    CREATE_ITEM_EVENTS_ROUTING_KEY = "create_item_event"
+    CREATE_ITEM_EVENTS_QUEUE = "create_item_events_queue"
+
+
+class DevelopmentConfig(BaseConfig):
     SQLALCHEMY_DATABASE_URI = DatabaseURI().get_uri()
 
 
-class TestingConfig:
+class TestingConfig(BaseConfig):
     SQLALCHEMY_DATABASE_URI = DatabaseURI(DB_NAME="flask_micro_test_db").get_uri()
     TESTING = True

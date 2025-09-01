@@ -23,6 +23,9 @@ WORKDIR /service_b
 COPY pyproject.toml poetry.lock ./
 RUN poetry install --no-root
 
+COPY wait_for.sh ./
+RUN chmod +x wait_for.sh
+
 WORKDIR /service_b/app
 
 COPY service_b/ .
@@ -31,4 +34,5 @@ EXPOSE 8081
 
 ENV PYTHONPATH=/service_b/app
 
-ENTRYPOINT ["poetry", "run"]
+ENTRYPOINT ["/service_b/wait_for.sh", "rabbitmq:5672", "--"]
+CMD ["poetry", "run", "python", "main.py"]

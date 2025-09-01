@@ -1,16 +1,15 @@
 from celery import Celery, Task
 
-from config import CeleryConfig
 
-
-def init_app_for_celery(flask_app):
+def celery_init_app(flask_app):
     class FlaskTask(Task):
         def __call__(self, *args: object, **kwargs: object) -> object:
             with flask_app.app_context():
                 return self.run(*args, **kwargs)
 
     celery_app = Celery(flask_app.name, task_cls=FlaskTask)
-    celery_app.config_from_object(CeleryConfig)
+    celery_app.config_from_object(flask_app.config.get("CELERY_CONF"))
+    celery_app.conf.beat_schedule = flask_app.config.get("BEAT_SCHEDULE")
     celery_app.set_default()
     celery_app.autodiscover_tasks(["tasks"])
     flask_app.extensions["celery"] = celery_app
