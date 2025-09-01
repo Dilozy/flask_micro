@@ -25,11 +25,16 @@ WORKDIR /service_a
 COPY pyproject.toml poetry.lock ./
 RUN poetry install --no-root
 
-WORKDIR /service_a/app
-COPY service_a/ .
+COPY /service_a/tests ./tests/
+COPY /service_a/migrations ./migrations/
+
+WORKDIR /service_a/web_app
+COPY /service_a/web_app/ .
 
 EXPOSE 8080
 
-ENV PYTHONPATH=/service_a/app
+ENV PYTHONPATH=/service_a
+
+WORKDIR /service_a
 
 ENTRYPOINT ["poetry",  "run"]

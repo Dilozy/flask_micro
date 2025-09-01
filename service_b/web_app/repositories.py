@@ -1,7 +1,7 @@
 from sqlalchemy import select
 
-from models import ReceivedItem
-from extensions import db
+from web_app.models import ReceivedItem
+from web_app.extensions import db
 
 
 class RecievedItemsRepo:

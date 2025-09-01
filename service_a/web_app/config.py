@@ -22,7 +22,7 @@ class BaseConfig:
     SERVICE_A_TASKS_QUEUE= "service_a_tasks"
     BEAT_SCHEDULE = {
         "check-unprocessed-outbox-events-every-10-seconds": {
-        "task": "tasks.check_unprocessed_outbox_events",
+        "task": "web_app.tasks.check_unprocessed_outbox_events",
         "schedule": int(os.getenv("CHECK_OUTBOX_EVENTS_EVERY", 10)),
         "options": {"queue": SERVICE_A_TASKS_QUEUE}
         },
@@ -36,5 +36,5 @@ class DevelopmentConfig(BaseConfig):
 
 
 class TestingConfig(BaseConfig):
-    SQLALCHEMY_DATABASE_URI = DatabaseURI(DB_NAME="flask_micro_test_db").get_uri()
+    SQLALCHEMY_DATABASE_URI = DatabaseURI(DB_NAME=os.getenv("SERVICE_A_TEST_DB_NAME")).get_uri()
     TESTING = True

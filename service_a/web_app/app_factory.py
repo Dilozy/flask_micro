@@ -1,9 +1,9 @@
 from flask import Flask
 
-from extensions import db, migrate
-from celery_app import celery_init_app
-from api import items_bp
-from config import DevelopmentConfig
+from web_app.extensions import db, migrate
+from web_app.celery_app import celery_init_app
+from web_app.api import items_bp
+from web_app.config import DevelopmentConfig
 
 
 def create_app(config_class=DevelopmentConfig):

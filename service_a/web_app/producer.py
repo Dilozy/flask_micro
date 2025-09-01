@@ -2,7 +2,7 @@ import os
 import logging
 from contextlib import contextmanager
 
-from config import DevelopmentConfig
+from web_app.config import DevelopmentConfig
 
 import pika
 

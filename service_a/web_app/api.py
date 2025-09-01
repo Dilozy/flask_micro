@@ -3,9 +3,9 @@ import json
 from flask import Blueprint, request, jsonify
 from pydantic import ValidationError
 
-from repositories import ItemsRepo, OutboxEventsRepo
-from schemas import ItemCreate
-from misc import model_to_dict
+from web_app.repositories import ItemsRepo, OutboxEventsRepo
+from web_app.schemas import ItemCreate
+from web_app.misc import model_to_dict
 
 
 items_bp = Blueprint("items", __name__)

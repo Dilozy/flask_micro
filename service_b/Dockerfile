@@ -7,6 +7,7 @@ RUN apk add --no-cache \
     musl-dev \
     libffi-dev \
     python3-dev \
+    netcat-openbsd \
     && rm -rf /var/cache/apk/*
 
 ENV POETRY_HOME=/opt/poetry
@@ -27,13 +28,17 @@ RUN poetry install --no-root
 COPY wait_for.sh ./
 RUN chmod +x wait_for.sh
 
-WORKDIR /service_b/app
+COPY /service_b/tests ./tests/
+COPY /service_b/migrations ./migrations/
 
-COPY service_b/ .
+WORKDIR /service_b/web_app
+COPY /service_b/web_app/ .
 
 EXPOSE 8081
 
-ENV PYTHONPATH=/service_b/app
+ENV PYTHONPATH=/service_b
+
+WORKDIR /service_b
 
 ENTRYPOINT ["/service_b/wait_for.sh", "rabbitmq:5672", "--"]
-CMD ["poetry", "run", "python", "main.py"]
+CMD ["poetry", "run", "python", "web_app/main.py"]

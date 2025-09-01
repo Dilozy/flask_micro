@@ -1,7 +1,7 @@
 from sqlalchemy import select
 
-from extensions import db
-from models import Item, OutboxEvent
+from web_app.extensions import db
+from web_app.models import Item, OutboxEvent
 
 
 class ItemsRepo:

@@ -1,8 +1,8 @@
 import pytest
 
-from ..app_factory import create_app
-from ..extensions import db
-from ..config import TestingConfig
+from ..web_app.app_factory import create_app
+from ..web_app.extensions import db
+from ..web_app.config import TestingConfig
 from .factories import RecievedItemFactory
 
 
@@ -34,13 +34,3 @@ def session(app):
 def recieved_items():
     recieved_items = RecievedItemFactory.create_batch(10)
     return recieved_items
-
-
-'''@pytest.fixture(autouse=True)
-def clean_db(app):
-    with app.app_context():
-        meta = db.metadata
-        for table in reversed(meta.sorted_tables):
-            db.session.execute(table.delete())
-        db.session.commit()
-    yield'''
