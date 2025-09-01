@@ -3,8 +3,8 @@ from datetime import datetime
 import pytest
 from sqlalchemy.exc import IntegrityError
 
-from ..models import Item, OutboxEvent
-from ..schemas import ItemRead
+from service_a.models import Item, OutboxEvent
+from service_a.schemas import ItemRead
 
 
 class TestItemModel:

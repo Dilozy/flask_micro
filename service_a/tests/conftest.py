@@ -1,8 +1,16 @@
-import pytest
+import sys
+import os
 
-from ..app_factory import create_app
-from ..extensions import db
-from ..config import TestingConfig
+import pytest
+from flask import Flask
+
+from service_a.app_factory import create_app
+from service_a.extensions import db
+from service_a.config import TestingConfig
+
+
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 
 @pytest.fixture(scope="session")
@@ -22,9 +30,9 @@ def client(app):
 
 
 @pytest.fixture
-def session(app):
+def session(app: Flask):
     with app.app_context():
-        yield db.session
+        yield db.session()
         db.session.rollback()
         db.session.remove()
 
@@ -32,13 +40,3 @@ def session(app):
 @pytest.fixture
 def initial_items_count():
     return 0
-
-
-@pytest.fixture(autouse=True)
-def clean_db(app):
-    with app.app_context():
-        meta = db.metadata
-        for table in reversed(meta.sorted_tables):
-            db.session.execute(table.delete())
-        db.session.commit()
-    yield

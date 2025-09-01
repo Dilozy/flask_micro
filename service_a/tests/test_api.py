@@ -4,7 +4,7 @@ from datetime import datetime
 import pytest
 from sqlalchemy import select, func
 
-from ..models import Item, OutboxEvent
+from service_a.models import Item, OutboxEvent
 
 
 class TestCreatItemAPI:
