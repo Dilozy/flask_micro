@@ -1,7 +1,7 @@
 from flask import Blueprint, jsonify, request
 
-from repositories import RecievedItemsRepo
-from misc import model_to_dict
+from web_app.repositories import RecievedItemsRepo
+from web_app.misc import model_to_dict
 
 
 recieved_items_bp = Blueprint("/items", __name__)

@@ -1,16 +1,9 @@
-import sys
-import os
-
 import pytest
 from flask import Flask
 
-from service_a.app_factory import create_app
-from service_a.extensions import db
-from service_a.config import TestingConfig
-
-
-sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+from web_app.app_factory import create_app
+from web_app.extensions import db
+from web_app.config import TestingConfig
 
 
 @pytest.fixture(scope="session")
@@ -40,3 +33,13 @@ def session(app: Flask):
 @pytest.fixture
 def initial_items_count():
     return 0
+
+
+'''@pytest.fixture(autouse=True)
+def clean_db(app):
+    with app.app_context():
+        meta = db.metadata
+        for table in reversed(meta.sorted_tables):
+            db.session.execute(table.delete())
+        db.session.commit()
+    yield'''

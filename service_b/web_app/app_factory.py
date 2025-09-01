@@ -1,9 +1,9 @@
 from flask import Flask
 
-from extensions import db, migrate
-from api import recieved_items_bp
-from config import DevelopmentConfig
-from consumer import start_message_consumer
+from web_app.extensions import db, migrate
+from web_app.api import recieved_items_bp
+from web_app.config import DevelopmentConfig
+from web_app.consumer import start_message_consumer
 
 
 def create_app(config_class=DevelopmentConfig):

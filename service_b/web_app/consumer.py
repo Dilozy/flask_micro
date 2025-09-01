@@ -6,8 +6,8 @@ from contextlib import contextmanager
 
 import pika
 
-from repositories import RecievedItemsRepo
-from config import DevelopmentConfig
+from web_app.repositories import RecievedItemsRepo
+from web_app.config import DevelopmentConfig
 
 
 logging.basicConfig(level=logging.INFO)

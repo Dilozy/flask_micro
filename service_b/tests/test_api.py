@@ -1,6 +1,6 @@
 import pytest
 
-from ..models import ReceivedItem
+from ..web_app.models import ReceivedItem
 
 
 class TestListRecievedItemsAPI:

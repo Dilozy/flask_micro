@@ -1,7 +1,7 @@
 from celery import shared_task
 
-from repositories import OutboxEventsRepo
-from producer import MessageProducer
+from web_app.repositories import OutboxEventsRepo
+from web_app.producer import MessageProducer
 
 
 message_producer = MessageProducer()

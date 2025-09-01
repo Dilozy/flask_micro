@@ -3,22 +3,24 @@ services:
     build:
       context: .
       dockerfile: service_a/Dockerfile
-    command: ["python", "main.py"]
+    command: ["python", "web_app/main.py"]
     environment:
       DB_NAME: $SERVICE_A_DB_NAME
-      TEST_DB_NAME: $SERVICE_A_TEST_DB_NAME
+      SERVICE_A_TEST_DB_NAME: $SERVICE_A_TEST_DB_NAME
       DB_USER: $SERVICE_A_DB_USER
       DB_PASSWORD: $SERVICE_A_DB_PASSWORD
       DB_HOST: $SERVICE_A_DB_HOST
       DB_PORT: $SERVICE_A_DB_PORT
       SERVICE_A_REDIS_DB: $SERVICE_A_REDIS_DB
       RABBIT_USER: $RABBIT_USER
-      RABBIT_PASS: $RABBIT_PASS
+      RABBIT_PASS: $RABBIT_PASS      
       CHECK_OUTBOX_EVENTS_EVERY: $CHECK_OUTBOX_EVENTS_EVERY
     ports:
       - "8080:8080"
     volumes:
-      - ./service_a:/service_a/app
+      - ./service_a/web_app:/service_a/web_app
+      - ./service_a/tests:/service_a/tests
+      - ./service_a/migrations:/service_a/migrations
     depends_on:
       - service_a_postgres
       - service_a_worker
@@ -44,7 +46,7 @@ services:
     build:
       context: .
       dockerfile: service_a/Dockerfile
-    command: ["celery", "-A", "main:celery_app", "worker", "-Q", "service_a_tasks", "--loglevel=info"]
+    command: ["celery", "-A", "web_app.main:celery_app", "worker", "-Q", "service_a_tasks", "--loglevel=info"]
     environment:
       DB_NAME: $SERVICE_A_DB_NAME
       DB_USER: $SERVICE_A_DB_USER
@@ -56,7 +58,7 @@ services:
       RABBIT_PASS: $RABBIT_PASS
       CHECK_OUTBOX_EVENTS_EVERY: $CHECK_OUTBOX_EVENTS_EVERY
     volumes:
-      - ./service_a:/service_a/app
+      - ./service_a/web_app:/service_a/web_app
     depends_on:
       - service_a_postgres
       - rabbitmq
@@ -68,7 +70,7 @@ services:
     build:
       context: .
       dockerfile: service_a/Dockerfile
-    command: ["celery", "-A", "main:celery_app", "beat", "--loglevel=info"]
+    command: ["celery", "-A", "web_app.main:celery_app", "beat", "--loglevel=info"]
     environment:
       DB_NAME: $SERVICE_A_DB_NAME
       DB_USER: $SERVICE_A_DB_USER
@@ -80,7 +82,7 @@ services:
       RABBIT_PASS: $RABBIT_PASS
       CHECK_OUTBOX_EVENTS_EVERY: $CHECK_OUTBOX_EVENTS_EVERY
     volumes:
-      - ./service_a:/service_a/app
+      - ./service_a/web_app:/service_a/web_app
     depends_on:
       - service_a_postgres
       - rabbitmq
@@ -94,6 +96,7 @@ services:
       dockerfile: service_b/Dockerfile
     environment:
       DB_NAME: $SERVICE_B_DB_NAME
+      SERVICE_B_TEST_DB_NAME: $SERVICE_B_TEST_DB_NAME
       DB_USER: $SERVICE_B_DB_USER
       DB_PASSWORD: $SERVICE_B_DB_PASSWORD
       DB_HOST: $SERVICE_B_DB_HOST
@@ -104,7 +107,9 @@ services:
     ports:
       - "8081:8081"
     volumes:
-      - ./service_b:/service_b/app
+      - ./service_b/web_app:/service_b/web_app
+      - ./service_b/tests:/service_b/tests
+      - ./service_b/migrations:/service_b/migrations
     depends_on:
       - service_b_postgres
       - rabbitmq

@@ -1,10 +1,11 @@
+import json
 from datetime import datetime
 
 import pytest
 from sqlalchemy.exc import IntegrityError
 
-from service_a.models import Item, OutboxEvent
-from service_a.schemas import ItemRead
+from web_app.models import Item, OutboxEvent
+from web_app.misc import model_to_dict
 
 
 class TestItemModel:
@@ -32,9 +33,7 @@ class TestOutboxEventModel:
         session.add(item)
         session.commit()
 
-        dumped_item_data = ItemRead.model_validate(
-            item, from_attributes=True
-            ).model_dump_json()
+        dumped_item_data = json.dumps(model_to_dict(item))
         
         new_outbox_event = OutboxEvent(payload=dumped_item_data)
         session.add(new_outbox_event)

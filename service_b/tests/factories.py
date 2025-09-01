@@ -1,8 +1,8 @@
 import factory
 from factory.alchemy import SQLAlchemyModelFactory
 
-from ..extensions import db
-from ..models import ReceivedItem
+from ..web_app.extensions import db
+from ..web_app.models import ReceivedItem
 
 
 class BaseFactory(SQLAlchemyModelFactory):

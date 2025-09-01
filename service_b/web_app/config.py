@@ -25,5 +25,5 @@ class DevelopmentConfig(BaseConfig):
 
 
 class TestingConfig(BaseConfig):
-    SQLALCHEMY_DATABASE_URI = DatabaseURI(DB_NAME="flask_micro_test_db").get_uri()
+    SQLALCHEMY_DATABASE_URI = DatabaseURI(DB_NAME=os.getenv("SERVICE_B_TEST_DB_NAME")).get_uri()
     TESTING = True
