@@ -37,4 +37,5 @@ ENV PYTHONPATH=/service_a
 
 WORKDIR /service_a
 
-ENTRYPOINT ["poetry",  "run"]
+ENTRYPOINT ["poetry", "run"]
+CMD ["gunicorn", "-b", "0.0.0.0:8080", "web_app.main:app"]

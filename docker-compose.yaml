@@ -3,7 +3,6 @@ services:
     build:
       context: .
       dockerfile: service_a/Dockerfile
-    command: ["python", "web_app/main.py"]
     environment:
       DB_NAME: $SERVICE_A_DB_NAME
       SERVICE_A_TEST_DB_NAME: $SERVICE_A_TEST_DB_NAME
@@ -15,8 +14,8 @@ services:
       RABBIT_USER: $RABBIT_USER
       RABBIT_PASS: $RABBIT_PASS      
       CHECK_OUTBOX_EVENTS_EVERY: $CHECK_OUTBOX_EVENTS_EVERY
-    ports:
-      - "8080:8080"
+    expose:
+      - "8080"
     volumes:
       - ./service_a/web_app:/service_a/web_app
       - ./service_a/tests:/service_a/tests
@@ -37,8 +36,8 @@ services:
       POSTGRES_DB: $SERVICE_A_DB_NAME
     volumes:
       - postgres_data_a:/var/lib/postgresql/data
-    ports:
-      - "5432:5432"
+    expose:
+      - "5432"
     networks:
       - service_a
 
@@ -104,8 +103,8 @@ services:
       SERVICE_B_REDIS_DB: $SERVICE_B_REDIS_DB
       RABBIT_USER: $RABBIT_USER
       RABBIT_PASS: $RABBIT_PASS
-    ports:
-      - "8081:8081"
+    expose:
+      - "8081"
     volumes:
       - ./service_b/web_app:/service_b/web_app
       - ./service_b/tests:/service_b/tests
@@ -125,8 +124,8 @@ services:
       POSTGRES_DB: $SERVICE_B_DB_NAME
     volumes:
       - postgres_data_b:/var/lib/postgresql/data
-    ports:
-      - "5433:5432"
+    expose:
+      - "5432"
     networks:
       - service_b
 
@@ -143,6 +142,20 @@ services:
     networks:
       - service_a
       - service_b
+
+  nginx:
+    build: ./nginx
+    container_name: nginx
+    ports:
+      - 80:80
+    depends_on:
+      - service_a
+      - service_b
+    networks:
+      - service_a
+      - service_b
+    volumes:
+      - ./nginx/flask_micro.conf:/etc/nginx/conf.d/flask_micro.conf
 
 volumes:
   postgres_data_a:

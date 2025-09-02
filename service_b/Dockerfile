@@ -41,4 +41,4 @@ ENV PYTHONPATH=/service_b
 WORKDIR /service_b
 
 ENTRYPOINT ["/service_b/wait_for.sh", "rabbitmq:5672", "--"]
-CMD ["poetry", "run", "python", "web_app/main.py"]
+CMD ["poetry", "run", "gunicorn", "-b", "0.0.0.0:8081", "web_app.main:app"]

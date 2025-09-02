@@ -1,8 +1,6 @@
-import os
 import logging
 from contextlib import contextmanager
-
-from web_app.config import DevelopmentConfig
+import json
 
 import pika
 
@@ -12,12 +10,13 @@ logger = logging.getLogger(__name__)
 
 
 class MessageProducer:
-    def __init__(self):
+    def __init__(self, config):
+        self.config = config
         self.params = pika.ConnectionParameters(
-            host=DevelopmentConfig.RABBIT_HOST,
+            host=self.config.RABBIT_HOST,
             credentials=pika.PlainCredentials(
-                username=os.getenv("RABBIT_USER"),
-                password=os.getenv("RABBIT_PASS")
+                username=self.config.RABBIT_USER,
+                password=self.config.RABBIT_PASS
             )
         )
 
@@ -27,22 +26,25 @@ class MessageProducer:
         try:
             channel = connection.channel()
             channel.exchange_declare(
-                exchange=DevelopmentConfig.CREATE_ITEM_EVENTS_EXCHANGE,
+                exchange=self.config.CREATE_ITEM_EVENTS_EXCHANGE,
                 exchange_type="direct",
-                durable=True,
-                auto_delete=False
+                durable=self.config.IS_EXCHANGE_DURABLE,
+                auto_delete=self.config.IS_EXCHANGE_AUTO_DELETE
             )
             yield channel
         finally:
             connection.close()
 
-    def produce_event_message(self, event_payload):
+    def produce_event_message(self, event_payload):        
         with self.channel() as ch:
             logger.info("Creating connection with RabbitMQ")
 
+            if not isinstance(event_payload, str):
+                event_payload = json.dumps(event_payload)
+
             ch.basic_publish(
-                exchange=DevelopmentConfig.CREATE_ITEM_EVENTS_EXCHANGE,
-                routing_key=DevelopmentConfig.CREATE_ITEM_EVENTS_ROUTING_KEY,
+                exchange=self.config.CREATE_ITEM_EVENTS_EXCHANGE,
+                routing_key=self.config.CREATE_ITEM_EVENTS_ROUTING_KEY,
                 body=event_payload
             )
 

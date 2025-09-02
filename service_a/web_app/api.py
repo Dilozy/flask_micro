@@ -8,7 +8,7 @@ from web_app.schemas import ItemCreate
 from web_app.misc import model_to_dict
 
 
-items_bp = Blueprint("items", __name__)
+items_bp = Blueprint("items_bp", __name__)
 
 
 @items_bp.route("/items", methods=["POST"])
