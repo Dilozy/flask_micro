@@ -6,7 +6,7 @@ from web_app.extensions import db
 from web_app.config import TestingConfig
 
 
-@pytest.fixture(scope="session")
+@pytest.fixture
 def app():
     app = create_app(config_class=TestingConfig)
     
@@ -17,7 +17,7 @@ def app():
         db.drop_all()
 
 
-@pytest.fixture(scope="session")
+@pytest.fixture
 def client(app):
     return app.test_client()
 
@@ -34,12 +34,3 @@ def session(app: Flask):
 def initial_items_count():
     return 0
 
-
-'''@pytest.fixture(autouse=True)
-def clean_db(app):
-    with app.app_context():
-        meta = db.metadata
-        for table in reversed(meta.sorted_tables):
-            db.session.execute(table.delete())
-        db.session.commit()
-    yield'''

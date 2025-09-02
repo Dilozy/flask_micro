@@ -1,9 +1,9 @@
 import pytest
 
-from ..web_app.app_factory import create_app
-from ..web_app.extensions import db
-from ..web_app.config import TestingConfig
-from .factories import RecievedItemFactory
+from web_app.app_factory import create_app
+from web_app.extensions import db
+from web_app.config import TestingConfig
+from tests.factories import RecievedItemFactory
 
 
 @pytest.fixture(scope="session")
