@@ -1,7 +1,6 @@
 import os
 import logging
 import json
-import threading
 from contextlib import contextmanager
 
 import pika
@@ -69,18 +68,3 @@ class MessageConsumer:
         except Exception as e:
             logging.error(f"Error processing message: {e}")
             ch.basic_nack(delivery_tag=method.delivery_tag, requeue=True)
-
-    
-def start_message_consumer(app):
-    def consumer_with_context():
-        with app.app_context():
-            message_consumer = MessageConsumer()
-            message_consumer.consume_create_item_event_messages()
-    
-    thread = threading.Thread(
-        target=consumer_with_context,
-        daemon=True
-    )
-    thread.start()
-
-    app.logger.info("RabbitMQ consumer started in background thread")

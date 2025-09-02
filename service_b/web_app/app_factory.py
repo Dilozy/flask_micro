@@ -1,9 +1,11 @@
+import threading
+
 from flask import Flask
 
 from web_app.extensions import db, migrate
 from web_app.api import recieved_items_bp
 from web_app.config import DevelopmentConfig
-from web_app.consumer import start_message_consumer
+from web_app.consumer import MessageConsumer
 
 
 def create_app(config_class=DevelopmentConfig):
@@ -15,3 +17,16 @@ def create_app(config_class=DevelopmentConfig):
     migrate.init_app(app, db)
     start_message_consumer(app)
     return app
+
+
+def start_message_consumer(app):
+    def consumer_with_context():
+        with app.app_context():
+            message_consumer = MessageConsumer()
+            message_consumer.consume_create_item_event_messages()
+    
+    thread = threading.Thread(
+        target=consumer_with_context,
+        daemon=True
+    )
+    thread.start()

@@ -1,10 +1,7 @@
 from celery import shared_task
 
 from web_app.repositories import OutboxEventsRepo
-from web_app.producer import MessageProducer
-
-
-message_producer = MessageProducer()
+from web_app.extensions import message_producer
 
 
 @shared_task
