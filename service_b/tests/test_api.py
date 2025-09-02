@@ -1,6 +1,6 @@
 import pytest
 
-from ..web_app.models import ReceivedItem
+from web_app.models import ReceivedItem
 
 
 class TestListRecievedItemsAPI:
@@ -8,7 +8,7 @@ class TestListRecievedItemsAPI:
         response = client.get("api/v1/items")
 
         assert response.status_code == 200
-        assert len(response.json) == len(recieved_items)
+        assert len(response.json["items"]) == len(recieved_items)
 
     
     def test_endpoint_response_after_adding_a_new_item(self, client,
@@ -17,10 +17,10 @@ class TestListRecievedItemsAPI:
         session.add(new_recieved_item)
         session.commit()
 
-        response = client.get("api/v1/items")
+        response = client.get("api/v1/items?page_size=20")
 
         assert response.status_code == 200
-        assert len(response.json) == len(recieved_items) + 1
+        assert len(response.json["items"]) == len(recieved_items) + 1
 
     @pytest.mark.parametrize("http_method", [
         "post", "put", "delete"

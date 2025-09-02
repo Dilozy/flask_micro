@@ -3,7 +3,7 @@ from datetime import datetime
 import pytest
 from sqlalchemy.exc import IntegrityError
 
-from ..web_app.models import ReceivedItem
+from web_app.models import ReceivedItem
 
 
 class TestRecievedItemModel:

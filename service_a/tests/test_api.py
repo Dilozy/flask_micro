@@ -8,7 +8,8 @@ from web_app.models import Item, OutboxEvent
 
 
 class TestCreatItemAPI:
-    def test_create_with_correct_request(self, session, client, initial_items_count):
+    def test_create_with_correct_request(self, session,
+                                         client, initial_items_count):
         initial_outbox_events_count = 0
         
         request_data = {"name": "vacuum cleaner"}
@@ -48,7 +49,7 @@ class TestCreatItemAPI:
         response = client.post("api/v1/items", json=request_data)
 
         assert response.status_code == 400
-        assert response.json["error"] == "Incorrect request"
+        assert response.json["error"] == "Invalid request"
         
         stmt = select(func.count(Item.id))
         assert session.execute(stmt).scalar() == initial_items_count
@@ -57,11 +58,11 @@ class TestCreatItemAPI:
         assert session.execute(stmt).scalar() == 0
 
 
-class TestListinitial_items_countAPI:
+class TestListItemsAPI:
     def test_endpoint_response(self, client, initial_items_count):
         response = client.get("api/v1/items")
         assert response.status_code == 200
-        assert len(response.json) == initial_items_count
+        assert len(response.json["items"]) == initial_items_count
 
     @pytest.mark.parametrize("request_data", [
         {"name": "abracadavra"},
@@ -70,5 +71,5 @@ class TestListinitial_items_countAPI:
         client.post("api/v1/items", json=request_data)
 
         response = client.get("api/v1/items")
-        assert len(response.json) == initial_items_count + 1
-        assert response.json[-1]["name"] == request_data["name"]
+        assert len(response.json["items"]) == initial_items_count + 1
+        assert response.json["items"][-1]["name"] == request_data["name"]
