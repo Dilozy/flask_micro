@@ -1,9 +1,15 @@
+before_script:
+  - apk update
+  - apk add --no-cache docker-compose
+  - docker-compose --version
+
 stages:
   - build
   - test
   - deploy
 
 build-job:
+
   stage: build
   script:
     - echo "🔨 Building docker images..."
