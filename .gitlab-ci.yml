@@ -48,6 +48,7 @@ run_service_a_tests:
     RABBIT_PASS: $RABBIT_PASS
     CHECK_OUTBOX_EVENTS_EVERY: $CHECK_OUTBOX_EVENTS_EVERY
   before_script:
+    - docker login -u $REGISTRY_USER -p $REGISTRY_PASS
     - apk add --no-cache postgresql-dev postgresql-client gcc musl-dev libffi-dev python3-dev netcat-openbsd
     - python -m venv $POETRY_VENV
     - $POETRY_VENV/bin/pip install -U pip setuptools
