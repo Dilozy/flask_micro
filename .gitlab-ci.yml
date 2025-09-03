@@ -1,7 +1,7 @@
 stages:
   - test
 
-run_service_a_tests:
+run_tests:
   stage: test
   image: docker:24.0
   services:
@@ -24,21 +24,13 @@ run_service_a_tests:
     POSTGRES_USER: test_user
     POSTGRES_PASSWORD: test_password
     POSTGRES_DB: test_service_a
-    SERVICE_B_DB_NAME: test_service_a
-    SERVICE_B_TEST_DB_NAME: test_service_a_test
-    SERVICE_B_DB_USER: test_user_b
-    SERVICE_B_DB_PASSWORD: test_password_b
-    SERVICE_B_DB_HOST: database_b
-    SERVICE_B_DB_PORT: 5432
-    SERVICE_B_REDIS_DB: 1
-
   before_script:
     - apk add --no-cache docker-compose
   script:
-    - docker-compose up service_a service_a_postgres service_a_worker service_a_celery_beat rabbitmq -d
+    - docker-compose up -d service_a service_a_postgres service_a_worker service_a_celery_beat rabbitmq
     - echo "Ждем, пока стек поднимется..."
-    - sleep 20
-    - docker-compose exec -T service_a poetry run alembic upgrade head
+    - sleep 10
+    - docker-compose exec -T service_a poetry run flask upgrade head
     - docker-compose exec -T service_a poetry run pytest
   after_script:
     - docker-compose down -v
