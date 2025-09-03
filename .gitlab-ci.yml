@@ -1,7 +1,8 @@
+image: ubuntu:latest
+
 before_script:
-  - apk update
-  - apk add --no-cache docker-compose
-  - docker-compose --version
+  - apt-get update -y
+  - apt-get install -y curl docker-compose
 
 stages:
   - build
@@ -9,7 +10,6 @@ stages:
   - deploy
 
 build-job:
-
   stage: build
   script:
     - echo "🔨 Building docker images..."
