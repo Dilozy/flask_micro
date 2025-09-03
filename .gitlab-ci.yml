@@ -1,28 +1,52 @@
-image: docker
-
-services:
-  - docker:dind
-
-before_script:
-  - docker compose build
+variables:
+  IMAGE_NAME: dilozy/my_projects
+  CELERY_IMAGE_TAG: celery-1.0.0
 
 stages:
+  - build
   - test
-  - deploy
 
-tests-job:
+build_worker_image:
+  stage: build
+  image: docker:28.4.0-rc.2-dind-alpine3.22
+  variables:
+    DOCKER_TLS_CERTDIR: "/certs"
+  before_script:
+    - docker login -u $REGISTRY_USER -p $REGISTRY_PASS
+  script:
+    - docker build -t $IMAGE_NAME:$CELERY_IMAGE_TAG .
+    - docker push $IMAGE_NAME:$CELERY_IMAGE_TAG
+
+run_service_a_tests:
   stage: test
+  image: python:3.12.11-alpine3.22
+  services:
+    - name: postgres:latest
+      alias: database_a
+    - name: rabbitmq:3-management
+      alias: rabbitmq
+    - name: dilozy/my_projects:$CELERY_IMAGE_TAG
+      alias: celery-worker
+    - name: dilozy/my_projects:$CELERY_IMAGE_TAG
+      alias: celery-beat
+  variables:
+    POETRY_HOME: /opt/poetry
+    POETRY_VENV: /opt/poetry-venv
+    SERVICE_A_TEST_DB_NAME: $SERVICE_A_TEST_DB_NAME
+    DB_USER: $SERVICE_A_DB_USER
+    DB_PASSWORD: $SERVICE_A_DB_PASSWORD
+    DB_HOST: $SERVICE_A_DB_HOST
+    DB_PORT: $SERVICE_A_DB_PORT
+    RABBIT_USER: $RABBIT_USER
+    RABBIT_PASS: $RABBIT_PASS
+    CHECK_OUTBOX_EVENTS_EVERY: $CHECK_OUTBOX_EVENTS_EVERY
+  before_script:
+    - apk add --no-cache postgresql-dev postgresql-client gcc musl-dev libffi-dev python3-dev netcat-openbsd
+    - python -m venv $POETRY_VENV
+    - $POETRY_VENV/bin/pip install -U pip setuptools
+    - $POETRY_VENV/bin/pip install poetry
+    - export PATH="${PATH}:${POETRY_VENV}/bin"
+    - poetry install --no-interaction --no-root
   script:
-    - echo "✅ Running tests..."
-    - docker compose up -d
-    - docker compose exec service_a poetry run pytest
-    - docker compose exec service_b poetry run pytest
-  after_script:
-    - docker compose down
-
-deploy-job:
-  stage: deploy
-  environment: production
-  script:
-    - echo "🚀 Deploying application (on CI runner)..."
-    - docker compose up -d
+    - poetry run alembic upgrade head
+    - poetry run pytest
