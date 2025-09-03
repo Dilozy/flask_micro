@@ -1,28 +1,32 @@
 stages:
   - test
 
-run_service_a_tests:
+test-full-stack:
   stage: test
-  image: docker/compose:latest
+  image: docker:24.0 # Используем образ с Docker
   services:
-    - name: docker:28.4.0-rc.2-dind
+    - name: docker:24.0-dind # Запускаем Docker-in-Docker (dind)
       alias: docker
   variables:
-    SERVICE_A_TEST_DB_NAME: $SERVICE_A_TEST_DB_NAME
-    DB_USER: $SERVICE_A_DB_USER
-    DB_PASSWORD: $SERVICE_A_DB_PASSWORD
-    DB_HOST: $SERVICE_A_DB_HOST
-    DB_PORT: $SERVICE_A_DB_PORT
-    RABBIT_USER: $RABBIT_USER
-    RABBIT_PASS: $RABBIT_PASS
-    CHECK_OUTBOX_EVENTS_EVERY: $CHECK_OUTBOX_EVENTS_EVERY
+    DOCKER_HOST: tcp://docker:2375
+    DOCKER_TLS_CERTDIR: "" # Упрощаем подключение, отключая TLS для dind
   before_script:
-    - docker login -u $REGISTRY_USER -p $REGISTRY_PASS
-    - docker-compose --version
+    - apk add --no-cache docker-compose # Устанавливаем docker-compose
   script:
-    - docker-compose up -d
-    - until docker-compose exec -T database_a pg_isready -U $SERVICE_A_DB_USER; do sleep 2; done
-    - docker-compose exec -T service_a poetry run alembic upgrade head
-    - docker-compose exec -T service_a poetry run pytest
-    - docker-compose down -v
+    # 1. Поднимаем ВЕСЬ стек (app, db, worker, broker) в фоновом режиме
+    - docker-compose -f docker-compose.yml up -d
+
+    # 2. Ждем, пока все сервисы (особенно БД и брокер) станут здоровыми
+    - echo "Ждем, пока стек поднимется..."
+    - sleep 30
+    # Лучше использовать скрипт для проверки здоровья, но sleep для простоты
+
+    # 3. Запускаем тесты ВНУТРИ контейнера с приложением
+    # Ключ -T отключает псевдо-TTY, что необходимо для CI
+    - docker-compose exec -T app alembic upgrade head
+    - docker-compose exec -T app python -m pytest /app/tests/
+
+    # 4. Останавливаем и очищаем стек
+  after_script:
+    - docker-compose down
   
