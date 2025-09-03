@@ -17,7 +17,7 @@ build_worker_image:
   before_script:
     - docker login -u $REGISTRY_USER -p $REGISTRY_PASS
   script:
-    - docker build -t $IMAGE_NAME:$CELERY_IMAGE_TAG .
+    - docker build -t $IMAGE_NAME:$CELERY_IMAGE_TAG -f service_a/Dockerfile .
     - docker push $IMAGE_NAME:$CELERY_IMAGE_TAG
 
 run_service_a_tests:
@@ -30,8 +30,12 @@ run_service_a_tests:
       alias: rabbitmq
     - name: dilozy/my_projects:$CELERY_IMAGE_TAG
       alias: celery-worker
+      command:
+        - "celery -A web_app.main:celery_app worker -Q service_a_tasks --loglevel=info"
     - name: dilozy/my_projects:$CELERY_IMAGE_TAG
       alias: celery-beat
+      command:
+        - "celery -A web_app.main:celery_app beat --loglevel=info"
   variables:
     POETRY_HOME: /opt/poetry
     POETRY_VENV: /opt/poetry-venv
