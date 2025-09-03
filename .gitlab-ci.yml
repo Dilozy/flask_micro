@@ -14,13 +14,9 @@ run_service_a_tests:
     - docker login -u $REGISTRY_USER -p $REGISTRY_PASS
     - docker-compose --version
   script:
-    - docker-compose up -d --wait
-    
+    - docker-compose up -d
     - until docker-compose exec -T database_a pg_isready -U $SERVICE_A_DB_USER; do sleep 2; done
-    
     - docker-compose exec -T service_a poetry run alembic upgrade head
-
     - docker-compose exec -T service_a poetry run pytest
-    
     - docker-compose down -v
   
