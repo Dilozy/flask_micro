@@ -30,7 +30,7 @@ run_tests:
     - docker-compose up -d --no-deps service_a service_a_postgres service_a_worker service_a_celery_beat rabbitmq
     - echo "Ждем, пока стек поднимется..."
     - sleep 10
-    - docker-compose exec -T service_a poetry run flask --app web_app.main:app upgrade head
+    - docker-compose exec -T service_a poetry run flask --app web_app.main:app db upgrade
     - docker-compose exec -T service_a poetry run pytest
   after_script:
     - docker-compose down -v
