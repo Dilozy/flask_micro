@@ -2,7 +2,7 @@ image: ubuntu:latest
 
 before_script:
   - apt-get update -y
-  - apt-get install -y curl docker-compose
+  - sudo apt install docker-compose-plugin
 
 stages:
   - build
@@ -13,21 +13,21 @@ build-job:
   stage: build
   script:
     - echo "🔨 Building docker images..."
-    - docker-compose build
+    - docker compose build
 
 tests-job:
   stage: test
   script:
     - echo "✅ Running tests..."
-    - docker-compose up -d
-    - docker-compose exec service_a poetry run pytest
-    - docker-compose exec service_b poetry run pytest
+    - docker compose up -d
+    - docker compose exec service_a poetry run pytest
+    - docker compose exec service_b poetry run pytest
   after_script:
-    - docker-compose down
+    - docker compose down
 
 deploy-job:
   stage: deploy
   environment: production
   script:
     - echo "🚀 Deploying application (on CI runner)..."
-    - docker-compose up -d
+    - docker compose up -d
