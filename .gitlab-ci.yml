@@ -8,23 +8,30 @@ run_service_a_tests:
     - name: docker:24.0-dind
       alias: docker
   variables:
-    DOCKER_HOST: tcp://docker:2375
     DOCKER_TLS_CERTDIR: "/certs"
-    DB_NAME: test_service_a
+    SERVICE_A_DB_NAME: test_service_a
     SERVICE_A_TEST_DB_NAME: test_service_a
-    DB_USER: test_user
-    DB_PASSWORD: test_password
-    DB_HOST: database_a
-    DB_PORT: 5432
+    SERVICE_A_DB_USER: test_user_a
+    SERVICE_A_DB_PASSWORD: test_password_a
+    SERVICE_A_DB_HOST: database_a
+    SERVICE_A_DB_PORT: 5432
     SERVICE_A_REDIS_DB: 0
-    RABBIT_USER: $RABBIT_USER
-    RABBIT_PASS: $RABBIT_PASS      
+    RABBIT_USER: test_rabbit
+    RABBIT_PASS: test_rabbit_pass      
     CHECK_OUTBOX_EVENTS_EVERY: 10
-    RABBITMQ_DEFAULT_USER: $RABBIT_USER
-    RABBITMQ_DEFAULT_PASS: $RABBIT_PASS
+    RABBITMQ_DEFAULT_USER: test_rabbit
+    RABBITMQ_DEFAULT_PASS: test_rabbit_pass 
     POSTGRES_USER: test_user
     POSTGRES_PASSWORD: test_password
     POSTGRES_DB: test_service_a
+    SERVICE_B_DB_NAME: test_service_a
+    SERVICE_B_TEST_DB_NAME: test_service_a_test
+    SERVICE_B_DB_USER: test_user_b
+    SERVICE_B_DB_PASSWORD: test_password_b
+    SERVICE_B_DB_HOST: database_b
+    SERVICE_B_DB_PORT: 5432
+    SERVICE_B_REDIS_DB: 1
+
   before_script:
     - apk add --no-cache docker-compose
   script:
