@@ -2,7 +2,7 @@ image: ubuntu:latest
 
 before_script:
   - apt-get update -y
-  - sudo apt install docker-compose-plugin
+  - apt install docker-compose-plugin
 
 stages:
   - build
