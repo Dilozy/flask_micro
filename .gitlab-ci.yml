@@ -58,3 +58,4 @@ run_service_a_tests:
   script:
     - poetry run alembic upgrade head
     - poetry run pytest
+l
