@@ -1,29 +1,53 @@
+variables:
+  IMAGE_NAME: dilozy/flask_micro
+  SERVICE_A_IMAGE_TAG: 1.0.0-service_a
+  SERVICE_B_IMAGE_TAG: 1.0.0-service_b
+
 stages:
+  - build
   - test
+
+build_service_a_image:
+  stage: build
+  image: docker:28.4.0-rc.2-cli-alpine3.22
+  services:
+    - name: docker:28.4.0-rc.2-dind-alpine3.22
+      alias: docker
+  before_script:
+    - docker login -u $REGISTRY_USER -p $REGISTRY_PASS
+  script:
+    - docker build -t $IMAGE_NAME:$SERVICE_A_IMAGE_TAG ./service_a
+    - docker push $IMAGE_NAME:$SERVICE_A_IMAGE_TAG
+
+build_service_b_image:
+  stage: build
+  image: docker:28.4.0-rc.2-cli-alpine3.22
+  services:
+    - name: docker:28.4.0-rc.2-dind-alpine3.22
+      alias: docker
+  before_script:
+    - docker login -u $REGISTRY_USER -p $REGISTRY_PASS
+  script:
+    - docker build -t $IMAGE_NAME:$SERVICE_B_IMAGE_TAG ./service_b
+    - docker push $IMAGE_NAME:$SERVICE_B_IMAGE_TAG
 
 run_service_a_tests:
   stage: test
-  image: docker:24.0
+  image: docker:28.4.0-rc.2-cli-alpine3.22
   services:
-    - name: docker:24.0-dind
+    - name: docker:28.4.0-rc.2-dind-alpine3.22
       alias: docker
   variables:
     DOCKER_TLS_CERTDIR: "/certs"
-    SERVICE_A_DB_NAME: test_service_a
-    SERVICE_A_TEST_DB_NAME: test_service_a
-    SERVICE_A_DB_USER: test_user
-    SERVICE_A_DB_PASSWORD: test_password
-    SERVICE_A_DB_HOST: database_a
-    SERVICE_A_DB_PORT: 5432
-    SERVICE_A_REDIS_DB: 0
-    RABBIT_USER: test_rabbit
-    RABBIT_PASS: test_rabbit_pass      
+    DB_URL: $SERVICE_A_DB_URL
+    RABBIT_USER: $RABBIT_USER
+    RABBIT_PASS: $RABBIT_PASS      
     CHECK_OUTBOX_EVENTS_EVERY: 10
-    RABBITMQ_DEFAULT_USER: test_rabbit
-    RABBITMQ_DEFAULT_PASS: test_rabbit_pass 
-    POSTGRES_USER: test_user
-    POSTGRES_PASSWORD: test_password
-    POSTGRES_DB: test_service_a
+    RABBITMQ_DEFAULT_USER: $RABBIT_USER
+    RABBITMQ_DEFAULT_PASS: $RABBIT_PASS 
+    POSTGRES_USER: $SERVICE_A_DB_USER
+    POSTGRES_PASSWORD: $SERVICE_A_DB_PASSWORD
+    POSTGRES_DB: $SERVICE_A_DB_NAME
   before_script:
     - apk add --no-cache docker-compose
   script:
@@ -37,27 +61,21 @@ run_service_a_tests:
 
 run_service_b_tests:
   stage: test
-  image: docker:24.0
+  image: docker:28.4.0-rc.2-cli-alpine3.22
   services:
-    - name: docker:24.0-dind
+    - name: docker:28.4.0-rc.2-dind-alpine3.22
       alias: docker
   variables:
     DOCKER_TLS_CERTDIR: "/certs"
-    SERVICE_B_DB_NAME: test_service_b
-    SERVICE_B_TEST_DB_NAME: test_service_b
-    SERVICE_B_DB_USER: test_user
-    SERVICE_B_DB_PASSWORD: test_password
-    SERVICE_B_DB_HOST: database_b
-    SERVICE_B_DB_PORT: 5432
-    SERVICE_B_REDIS_DB: 0
-    RABBIT_USER: test_rabbit
-    RABBIT_PASS: test_rabbit_pass      
+    DB_URL: $SERVICE_B_DB_URL
+    RABBIT_USER: $RABBIT_USER
+    RABBIT_PASS: $RABBIT_PASS     
     CHECK_OUTBOX_EVENTS_EVERY: 10
-    RABBITMQ_DEFAULT_USER: test_rabbit
-    RABBITMQ_DEFAULT_PASS: test_rabbit_pass 
-    POSTGRES_USER: test_user
-    POSTGRES_PASSWORD: test_password
-    POSTGRES_DB: test_service_b
+    RABBITMQ_DEFAULT_USER: $RABBIT_USER
+    RABBITMQ_DEFAULT_PASS: $RABBIT_PASS
+    POSTGRES_USER: $SERVICE_B_DB_USER
+    POSTGRES_PASSWORD: $SERVICE_B_DB_PASSWORD
+    POSTGRES_DB: $SERVICE_B_DB_NAME
   before_script:
     - apk add --no-cache docker-compose
   script:
