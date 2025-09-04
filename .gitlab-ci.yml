@@ -16,7 +16,7 @@ build_service_a_image:
   before_script:
     - docker login -u $REGISTRY_USER -p $REGISTRY_PASS
   script:
-    - docker build -t $IMAGE_NAME:$SERVICE_A_IMAGE_TAG ./service_a
+    - docker build -t $IMAGE_NAME:$SERVICE_A_IMAGE_TAG -f ./service_a/Dockerfile .
     - docker push $IMAGE_NAME:$SERVICE_A_IMAGE_TAG
 
 build_service_b_image:
@@ -28,7 +28,7 @@ build_service_b_image:
   before_script:
     - docker login -u $REGISTRY_USER -p $REGISTRY_PASS
   script:
-    - docker build -t $IMAGE_NAME:$SERVICE_B_IMAGE_TAG ./service_b
+    - docker build -t $IMAGE_NAME:$SERVICE_B_IMAGE_TAG -f ./service_b/Dockerfile .
     - docker push $IMAGE_NAME:$SERVICE_B_IMAGE_TAG
 
 run_service_a_tests:
