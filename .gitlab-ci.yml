@@ -6,6 +6,7 @@ variables:
 stages:
   - build
   - test
+  - lint
 
 build_service_a_image:
   stage: build

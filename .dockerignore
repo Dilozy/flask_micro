@@ -6,3 +6,4 @@
 **/.gitignore
 README.md
 docker-compose.yml
+.ruff_cache/

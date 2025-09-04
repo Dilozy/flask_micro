@@ -2,7 +2,6 @@ from datetime import datetime
 
 import pytest
 from sqlalchemy.exc import IntegrityError
-
 from web_app.models import ReceivedItem
 
 
@@ -19,7 +18,7 @@ class TestRecievedItemModel:
 
     def test_recieved_item_creation_without_name(self, session):
         new_recieved_item = ReceivedItem()
-        
+        session.add(new_recieved_item)
+
         with pytest.raises(IntegrityError):
-           session.add(new_recieved_item)
-           session.commit()
+            session.commit()

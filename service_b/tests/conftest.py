@@ -1,15 +1,14 @@
 import pytest
-
-from web_app.app_factory import create_app
-from web_app.extensions import db
-from web_app.config import TestingConfig
 from tests.factories import RecievedItemFactory
+from web_app.app_factory import create_app
+from web_app.config import TestingConfig
+from web_app.extensions import db
 
 
 @pytest.fixture(scope="session")
 def app():
     app = create_app(config_class=TestingConfig)
-    
+
     with app.app_context():
         db.create_all()
         yield app
@@ -32,5 +31,4 @@ def session(app):
 
 @pytest.fixture(scope="class")
 def recieved_items():
-    recieved_items = RecievedItemFactory.create_batch(10)
-    return recieved_items
+    return RecievedItemFactory.create_batch(10)

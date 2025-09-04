@@ -3,9 +3,8 @@ from datetime import datetime
 
 import pytest
 from sqlalchemy.exc import IntegrityError
-
-from web_app.models import Item, OutboxEvent
 from web_app.misc import model_to_dict
+from web_app.models import Item, OutboxEvent
 
 
 class TestItemModel:
@@ -13,7 +12,7 @@ class TestItemModel:
         item = Item(name="laptop")
         session.add(item)
         session.commit()
-        
+
         retrieved_item = session.get(Item, item.id)
         assert retrieved_item is not None
         assert retrieved_item.name == "laptop"
@@ -21,9 +20,9 @@ class TestItemModel:
 
     def test_item_creation_without_name(self, session):
         item = Item()
-        
+        session.add(item)
+
         with pytest.raises(IntegrityError):
-            session.add(item)
             session.commit()
 
 
@@ -34,7 +33,7 @@ class TestOutboxEventModel:
         session.commit()
 
         dumped_item_data = json.dumps(model_to_dict(item))
-        
+
         new_outbox_event = OutboxEvent(payload=dumped_item_data)
         session.add(new_outbox_event)
         session.commit()
@@ -47,7 +46,7 @@ class TestOutboxEventModel:
 
     def test_event_creation_without_payload(self, session):
         outbox_event = OutboxEvent()
+        session.add(outbox_event)
 
         with pytest.raises(IntegrityError):
-            session.add(outbox_event)
             session.commit()

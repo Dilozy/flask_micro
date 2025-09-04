@@ -1,9 +1,8 @@
+import json
 import logging
 from contextlib import contextmanager
-import json
 
 import pika
-
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -15,9 +14,8 @@ class MessageProducer:
         self.params = pika.ConnectionParameters(
             host=self.config.RABBIT_HOST,
             credentials=pika.PlainCredentials(
-                username=self.config.RABBIT_USER,
-                password=self.config.RABBIT_PASS
-            )
+                username=self.config.RABBIT_USER, password=self.config.RABBIT_PASS,
+            ),
         )
 
     @contextmanager
@@ -29,13 +27,13 @@ class MessageProducer:
                 exchange=self.config.CREATE_ITEM_EVENTS_EXCHANGE,
                 exchange_type="direct",
                 durable=self.config.IS_EXCHANGE_DURABLE,
-                auto_delete=self.config.IS_EXCHANGE_AUTO_DELETE
+                auto_delete=self.config.IS_EXCHANGE_AUTO_DELETE,
             )
             yield channel
         finally:
             connection.close()
 
-    def produce_event_message(self, event_payload):        
+    def produce_event_message(self, event_payload):
         with self.channel() as ch:
             logger.info("Creating connection with RabbitMQ")
 
@@ -45,7 +43,7 @@ class MessageProducer:
             ch.basic_publish(
                 exchange=self.config.CREATE_ITEM_EVENTS_EXCHANGE,
                 routing_key=self.config.CREATE_ITEM_EVENTS_ROUTING_KEY,
-                body=event_payload
+                body=event_payload,
             )
 
             logger.info("New event message has been published")
