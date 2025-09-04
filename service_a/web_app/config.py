@@ -23,10 +23,11 @@ class BaseConfig:
     IS_QUEUE_DURABLE = True
     IS_QUEUE_AUTO_DELETE = False
     IS_EXCHANGE_AUTO_DELETE = False
+    SQLALCHEMY_DATABASE_URI = os.getenv("DB_URL")
 
 
 class DevelopmentConfig(BaseConfig):
-    SQLALCHEMY_DATABASE_URI = os.getenv("DB_URL")
+    pass
 
 
 class TestingConfig(BaseConfig):
