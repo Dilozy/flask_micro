@@ -16,7 +16,8 @@ class MessageConsumer:
         self.params = pika.ConnectionParameters(
             host=DevelopmentConfig.RABBIT_HOST,
             credentials=pika.PlainCredentials(
-                username=os.getenv("RABBIT_USER"), password=os.getenv("RABBIT_PASS"),
+                username=os.getenv("RABBIT_USER"),
+                password=os.getenv("RABBIT_PASS"),
             ),
         )
 

@@ -51,7 +51,11 @@ class TestCreatItemAPI:
         ],
     )
     def test_create_with_incorrect_request(
-        self, session, client, request_data, initial_items_count,
+        self,
+        session,
+        client,
+        request_data,
+        initial_items_count,
     ):
         response = client.post("api/v1/items", json=request_data)
 
@@ -78,7 +82,10 @@ class TestListItemsAPI:
         ],
     )
     def test_endpoint_after_adding_new_item(
-        self, client, initial_items_count, request_data,
+        self,
+        client,
+        initial_items_count,
+        request_data,
     ):
         client.post("api/v1/items", json=request_data)
 

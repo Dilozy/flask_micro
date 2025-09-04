@@ -46,7 +46,8 @@ def rabbit_consumer_channel():
     params = pika.ConnectionParameters(
         host=TestingConfig.RABBIT_HOST,
         credentials=pika.PlainCredentials(
-            username=TestingConfig.RABBIT_USER, password=TestingConfig.RABBIT_PASS,
+            username=TestingConfig.RABBIT_USER,
+            password=TestingConfig.RABBIT_PASS,
         ),
     )
     connection = pika.BlockingConnection(params)

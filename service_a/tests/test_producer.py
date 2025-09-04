@@ -23,6 +23,7 @@ class TestMessageProducer:
     def _consume_test_message(self, rabbit_consumer_channel):
         with rabbit_consumer_channel as ch:
             method_frame, _, body = ch.basic_get(
-                queue=TestingConfig.CREATE_ITEM_EVENTS_QUEUE, auto_ack=True,
+                queue=TestingConfig.CREATE_ITEM_EVENTS_QUEUE,
+                auto_ack=True,
             )
             return method_frame, body

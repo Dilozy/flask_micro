@@ -10,7 +10,10 @@ class TestListRecievedItemsAPI:
         assert len(response.json["items"]) == len(recieved_items)
 
     def test_endpoint_response_after_adding_a_new_item(
-        self, client, session, recieved_items,
+        self,
+        client,
+        session,
+        recieved_items,
     ):
         new_recieved_item = ReceivedItem(name="test_item")
         session.add(new_recieved_item)

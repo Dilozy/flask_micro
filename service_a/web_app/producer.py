@@ -14,7 +14,8 @@ class MessageProducer:
         self.params = pika.ConnectionParameters(
             host=self.config.RABBIT_HOST,
             credentials=pika.PlainCredentials(
-                username=self.config.RABBIT_USER, password=self.config.RABBIT_PASS,
+                username=self.config.RABBIT_USER,
+                password=self.config.RABBIT_PASS,
             ),
         )
 
